@@ -1,0 +1,31 @@
+<?php
+// Variables
+return [
+  "creatorName" => "Creativos31",
+  "creatorUrl" => "https://creativos31.com",
+  "templateName" => "",
+  "templateSuffix" => "",
+  "templateVersion" => "2.0.0",
+  "templateFree" => true,
+  "templateDescription" => "Javach - Alcala Creativos31",
+  "templateKeyword" => "",
+  "licenseUrl" => "https://creativos31.com/license/",
+  "livePreview" => "https://creativos31.com/admin/demo/",
+  "productPage" => "https://creativos31.com/admin/",
+  "support" => "https://creativos31.com/support/",
+  "adminTemplates" => "https://creativos31.com/",
+  "bootstrapDashboard" => "https://creativos31.com/",
+  "ogTitle" => "Creativos31 - admin",
+  "ogImage" => "https://ts-assets.b-cdn.net/ts-assets/sneat/sneat-bootstrap-laravel-admin-template-free/marketing/sneat-bootstrap-laravel-admin-template-free-smm.png",
+  "ogType" => "product",
+  "documentation" => "https://demos.themeselection.com/sneat-bootstrap-html-admin-template/documentation",
+  "repository" => "https://github.com/themeselection/sneat-bootstrap-html-laravel-admin-template-free",
+  "gitRepo" => "https://github.com/themeselection/sneat-bootstrap-html-laravel-admin-template-free.git",
+  "gitRepoAccess" => "https://tools.themeselection.com/github/github-access",
+  "githubFreeUrl" => "https://github.com/themeselection",
+  "facebookUrl" => "https://www.facebook.com/ThemeSelections/",
+  "twitterUrl" => "https://x.com/Theme_Selection",
+  "githubUrl" => "https://github.com/themeselection",
+  "dribbbleUrl" => "https://dribbble.com/themeselection",
+  "instagramUrl" => "https://www.instagram.com/themeselection/"
+];
