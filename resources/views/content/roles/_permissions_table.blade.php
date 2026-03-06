@@ -71,6 +71,37 @@
   </table>
 </div>
 
+@if(!empty($extra))
+<div class="mb-3">
+  <p class="small fw-semibold text-muted mb-2 mt-3">Permisos especiales</p>
+  <div class="d-flex flex-wrap gap-3">
+    @foreach($extra as $perm => $label)
+    @php
+      $epChecked = in_array($perm, $rolePermissions ?? old('permissions', []));
+      [$eMod, $eAct] = explode('.', $perm, 2);
+    @endphp
+    <label class="extra-perm-card d-flex align-items-start gap-2 px-3 py-2 rounded border"
+           data-perm="{{ $perm }}"
+           style="{{ $epChecked ? 'background:#696cff14;border-color:#696cff;' : 'background:#fff;border-color:#d9dee3;' }} cursor:pointer;user-select:none;transition:background .15s,border-color .15s;max-width:340px">
+      <input class="form-check-input mt-1 flex-shrink-0 perm-check"
+             type="checkbox"
+             name="permissions[]"
+             value="{{ $perm }}"
+             id="perm_extra_{{ str_replace('.', '_', $perm) }}"
+             {{ $epChecked ? 'checked' : '' }}>
+      <div>
+        <div class="fw-semibold small mb-1">
+          <span class="badge bg-label-secondary text-uppercase me-1" style="font-size:.65rem">{{ $eMod }}</span>
+          <span class="badge bg-label-primary" style="font-size:.65rem">{{ $eAct }}</span>
+        </div>
+        <div class="text-muted" style="font-size:.8rem">{{ $label }}</div>
+      </div>
+    </label>
+    @endforeach
+  </div>
+</div>
+@endif
+
 @once
 @push('page-script')
 <script>
@@ -135,6 +166,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const all  = document.querySelectorAll('.perm-check');
     document.getElementById('toggle-all').checked = [...all].every(b => b.checked);
   }
+
+  // Extra permission card toggle style
+  document.querySelectorAll('.extra-perm-card').forEach(function (card) {
+    var cb = card.querySelector('input[type="checkbox"]');
+    if (!cb) return;
+    function applyStyle() {
+      if (cb.checked) {
+        card.style.background   = '#696cff14';
+        card.style.borderColor  = '#696cff';
+      } else {
+        card.style.background   = '#fff';
+        card.style.borderColor  = '#d9dee3';
+      }
+    }
+    cb.addEventListener('change', function () {
+      applyStyle();
+      syncMasterToggle();
+    });
+  });
 
   // Init on load
   syncRowToggles();

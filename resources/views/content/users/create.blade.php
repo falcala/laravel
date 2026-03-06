@@ -38,6 +38,16 @@
           </div>
 
           <div class="mb-3">
+            <label class="form-label">Nickname <small class="text-muted">(único, solo letras, números, - y _)</small></label>
+            <div class="input-group">
+              <span class="input-group-text text-muted">@</span>
+              <input type="text" name="nickname" class="form-control @error('nickname') is-invalid @enderror"
+                     value="{{ old('nickname') }}" placeholder="mi-nickname" />
+            </div>
+            @error('nickname') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+          </div>
+
+          <div class="mb-3">
             <label class="form-label">Correo</label>
             <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
                    value="{{ old('email') }}" />
@@ -71,21 +81,32 @@
             <input type="password" name="password_confirmation" class="form-control" />
           </div>
 
+          @can('roles.edit')
           <div class="mb-3">
-            <label class="form-label">Asignar permisos</label>
-            <div class="row">
+            <label class="form-label fw-semibold">Roles</label>
+            <div class="d-flex flex-wrap gap-2">
               @foreach($roles as $role)
-              <div class="col-md-4">
-                <div class="form-check mb-2">
-                  <input class="form-check-input" type="checkbox" name="roles[]"
-                         value="{{ $role->name }}" id="role_{{ $role->id }}"
-                         {{ in_array($role->name, old('roles', [])) ? 'checked' : '' }}>
-                  <label class="form-check-label" for="role_{{ $role->id }}">{{ $role->name }}</label>
-                </div>
-              </div>
+              @php
+                $rc      = $role->color ?? '#696cff';
+                $checked = in_array($role->name, old('roles', []));
+                $bgStyle = $checked ? 'background:'.$rc.'22;border-color:'.$rc.';' : 'background:#fff;border-color:'.$rc.'40;';
+              @endphp
+              <label for="role_{{ $role->id }}"
+                     class="role-card d-flex align-items-center gap-2 px-3 py-2 rounded border"
+                     data-color="{{ $rc }}"
+                     style="{{ $bgStyle }} cursor:pointer;user-select:none;transition:background .15s,border-color .15s">
+                <input class="form-check-input m-0 flex-shrink-0" type="checkbox"
+                       name="roles[]" value="{{ $role->name }}" id="role_{{ $role->id }}"
+                       {{ $checked ? 'checked' : '' }}>
+                @if($role->icon)
+                  <i class="bx {{ $role->icon }}" style="color:{{ $rc }};font-size:.95rem"></i>
+                @endif
+                <span class="fw-semibold small" style="color:{{ $rc }}">{{ $role->name }}</span>
+              </label>
               @endforeach
             </div>
           </div>
+          @endcan
 
           <button type="submit" class="btn btn-primary">Guardar</button>
           <a href="{{ route('users.index') }}" class="btn btn-secondary ms-1">Cancelar</a>
@@ -95,15 +116,23 @@
   </div>
 </div>
 
-@push('page-script')
+@section('page-script')
 <script>
 function previewImage(input) {
   if (input.files && input.files[0]) {
-    const reader = new FileReader();
-    reader.onload = e => document.getElementById('preview').src = e.target.result;
+    var reader = new FileReader();
+    reader.onload = function (e) { document.getElementById('preview').src = e.target.result; };
     reader.readAsDataURL(input.files[0]);
   }
 }
+document.querySelectorAll('.role-card').forEach(function (label) {
+  var cb = label.querySelector('input[type="checkbox"]');
+  var color = label.dataset.color || '#696cff';
+  if (!cb) return;
+  cb.addEventListener('change', function () {
+    label.style.background  = cb.checked ? color + '22' : '#fff';
+    label.style.borderColor = cb.checked ? color : color + '40';
+  });
+});
 </script>
-@endpush
 @endsection

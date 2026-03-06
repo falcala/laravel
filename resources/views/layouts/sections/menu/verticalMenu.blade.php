@@ -39,11 +39,33 @@ use Illuminate\Support\Facades\Route;
 		  </a>
 		</li>
 		@endcan
+		@can('frontpages.edit')
+		<li class="menu-item {{ request()->routeIs('frontpages.*') ? 'active open' : '' }}">
+		  <a href="{{ route('frontpages.edit', auth()->id()) }}" class="menu-link">
+			<i class="menu-icon tf-icons bx bx-globe"></i>
+			<div>Mi Front Page</div>
+		  </a>
+		</li>
+		@endcan
+		@can('frontpages.manage')
+		<li class="menu-item {{ request()->routeIs('frontpages.index') ? 'active open' : '' }}">
+		  <a href="{{ route('frontpages.index') }}" class="menu-link">
+			<i class="menu-icon tf-icons bx bx-layout"></i>
+			<div>Front Pages</div>
+		  </a>
+		</li>
+		@endcan
 		@can('pages.edit')
 		<li class="menu-item {{ request()->routeIs('pages.*') ? 'active open' : '' }}">
 		  <a href="{{ route('pages.edit') }}" class="menu-link">
 			<i class="menu-icon tf-icons bx bx-file"></i>
 			<div>Pagina de inicio</div>
+		  </a>
+		</li>
+		<li class="menu-item {{ request()->routeIs('media.*') ? 'active open' : '' }}">
+		  <a href="{{ route('media.manager') }}" class="menu-link">
+			<i class="menu-icon tf-icons bx bx-images"></i>
+			<div>Media Manager</div>
 		  </a>
 		</li>
 		@endcan

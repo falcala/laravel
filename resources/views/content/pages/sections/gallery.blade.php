@@ -23,9 +23,13 @@
   </div>
 
   {{-- Image URL + Upload --}}
-  @if(!empty($item['image']))
-    <img src="{{ $item['image'] }}" class="img-fluid rounded mb-2" style="max-height:120px;object-fit:cover;width:100%">
-  @endif
+  <div class="mb-2" id="gal_preview_wrap_{{ $section->id }}_{{ $i }}"
+       style="{{ empty($item['image']) ? 'display:none' : '' }}">
+    <img src="{{ $item['image'] ?? '' }}"
+         id="gal_preview_{{ $section->id }}_{{ $i }}"
+         class="img-fluid rounded"
+         style="max-height:120px;object-fit:cover;width:100%">
+  </div>
   <div class="input-group input-group-sm mb-2">
     <span class="input-group-text"><i class="bx bx-link"></i></span>
     <input type="text" name="content[items][{{ $i }}][image]"
@@ -33,13 +37,24 @@
            class="form-control" value="{{ $item['image'] ?? '' }}"
            placeholder="https://... or upload">
   </div>
-  <label class="btn btn-outline-secondary btn-sm mb-2">
-    <i class="bx bx-upload me-1"></i> Upload
-    <input type="file" accept="image/jpeg,image/png,image/webp,image/gif"
-           class="d-none gallery-upload"
-           data-section="{{ $section->id }}" data-index="{{ $i }}"
-           data-url-field="gal_url_{{ $section->id }}_{{ $i }}">
-  </label>
+  <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+    <label class="btn btn-outline-secondary btn-sm mb-0" style="cursor:pointer">
+      <i class="bx bx-upload me-1"></i> Upload
+      <input type="file" accept="image/jpeg,image/png,image/webp,image/gif"
+             class="d-none gallery-upload"
+             data-section="{{ $section->id }}" data-index="{{ $i }}"
+             data-url-field="gal_url_{{ $section->id }}_{{ $i }}"
+             data-preview="gal_preview_{{ $section->id }}_{{ $i }}"
+             data-preview-wrap="gal_preview_wrap_{{ $section->id }}_{{ $i }}">
+    </label>
+    <button type="button"
+            class="btn btn-outline-primary btn-sm media-browse-btn"
+            data-field="gal_url_{{ $section->id }}_{{ $i }}"
+            data-preview="gal_preview_{{ $section->id }}_{{ $i }}"
+            data-preview-wrap="gal_preview_wrap_{{ $section->id }}_{{ $i }}">
+      <i class="bx bx-images me-1"></i> Browse
+    </button>
+  </div>
 
   <input type="text" name="content[items][{{ $i }}][caption]"
          class="form-control form-control-sm"
@@ -76,12 +91,17 @@
         var fd = new FormData();
         fd.append('image', this.files[0]);
         fd.append('_token', csrf);
+        var capturedInp = this;
         fetch(uploadUrl, { method: 'POST', body: fd })
           .then(function (r) { return r.json(); })
           .then(function (d) {
             if (d.success) {
-              var f = document.getElementById(inp.dataset.urlField);
+              var f = document.getElementById(capturedInp.dataset.urlField);
               if (f) f.value = d.url;
+              var preview = document.getElementById(capturedInp.dataset.preview);
+              if (preview) { preview.src = d.url; }
+              var wrap = document.getElementById(capturedInp.dataset.previewWrap);
+              if (wrap) wrap.style.display = '';
             }
           });
       });
@@ -100,19 +120,34 @@
               <i class="bx bx-trash"></i> Remove
             </button>
           </div>
+          <div class="mb-2" id="gal_preview_wrap_${secId}_${idx}" style="display:none">
+            <img src="" id="gal_preview_${secId}_${idx}"
+                 class="img-fluid rounded" style="max-height:120px;object-fit:cover;width:100%">
+          </div>
           <div class="input-group input-group-sm mb-2">
             <span class="input-group-text"><i class="bx bx-link"></i></span>
             <input type="text" name="content[items][${idx}][image]"
                    id="gal_url_${secId}_${idx}"
                    class="form-control" placeholder="https://... or upload">
           </div>
-          <label class="btn btn-outline-secondary btn-sm mb-2">
-            <i class="bx bx-upload me-1"></i> Upload
-            <input type="file" accept="image/jpeg,image/png,image/webp,image/gif"
-                   class="d-none gallery-upload"
-                   data-section="${secId}" data-index="${idx}"
-                   data-url-field="gal_url_${secId}_${idx}">
-          </label>
+          <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+            <label class="btn btn-outline-secondary btn-sm mb-0" style="cursor:pointer">
+              <i class="bx bx-upload me-1"></i> Upload
+              <input type="file" accept="image/jpeg,image/png,image/webp,image/gif"
+                     class="d-none gallery-upload"
+                     data-section="${secId}" data-index="${idx}"
+                     data-url-field="gal_url_${secId}_${idx}"
+                     data-preview="gal_preview_${secId}_${idx}"
+                     data-preview-wrap="gal_preview_wrap_${secId}_${idx}">
+            </label>
+            <button type="button"
+                    class="btn btn-outline-primary btn-sm media-browse-btn"
+                    data-field="gal_url_${secId}_${idx}"
+                    data-preview="gal_preview_${secId}_${idx}"
+                    data-preview-wrap="gal_preview_wrap_${secId}_${idx}">
+              <i class="bx bx-images me-1"></i> Browse
+            </button>
+          </div>
           <input type="text" name="content[items][${idx}][caption]"
                  class="form-control form-control-sm" placeholder="Caption (optional)">
         </div>`;

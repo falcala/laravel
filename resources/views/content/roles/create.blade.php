@@ -15,6 +15,7 @@
 
         <form action="{{ route('roles.store') }}" method="POST">
           @csrf
+          @php $role = new \App\Models\Role; @endphp
 
           <div class="mb-3">
             <label class="form-label">Nombre del Permiso</label>
@@ -23,6 +24,8 @@
                    value="{{ old('name') }}" placeholder="e.g. editor" />
             @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
           </div>
+
+          @include('content.roles._icon_color_picker')
 
           <div class="mb-4">
             <div class="form-check form-switch">
@@ -51,4 +54,8 @@
     </div>
   </div>
 </div>
+@endsection
+
+@section('page-script')
+@include('content.roles._icon_color_script')
 @endsection

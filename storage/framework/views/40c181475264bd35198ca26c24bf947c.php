@@ -38,6 +38,8 @@ endif;
 unset($__errorArgs, $__bag); ?>
           </div>
 
+          <?php echo $__env->make('content.roles._icon_color_picker', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+
           <div class="mb-4">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" name="is_default"
@@ -65,5 +67,9 @@ unset($__errorArgs, $__bag); ?>
     </div>
   </div>
 </div>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('page-script'); ?>
+<?php echo $__env->make('content.roles._icon_color_script', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('layouts/contentNavbarLayout', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\sneat\resources\views/content/roles/edit.blade.php ENDPATH**/ ?>

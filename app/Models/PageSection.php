@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PageSection extends Model
 {
-    protected $fillable = ['page_id', 'type', 'title', 'content', 'order', 'is_visible'];
+    protected $fillable = ['page_id', 'type', 'title', 'anchor', 'content', 'order', 'is_visible'];
 
     protected $casts = [
         'content'    => 'array',
@@ -31,6 +31,7 @@ class PageSection extends Model
             'faq'         => ['label' => 'FAQ Section',        'icon' => 'bx-help-circle'],
             'cta'         => ['label' => 'Call to Action',     'icon' => 'bx-bullseye'],
             'custom'      => ['label' => 'Custom HTML Block',  'icon' => 'bx-code-alt'],
+            'vcard'       => ['label' => 'vCard / Contacto',   'icon' => 'bx-id-card'],
         ];
     }
 }

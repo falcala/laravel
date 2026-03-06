@@ -39,7 +39,16 @@
               @forelse($roles as $role)
               <tr>
 				<td>{{ $role->id }}</td>
-                <td><span class="badge bg-label-primary">{{ $role->name }}</span></td>
+                <td>
+                  @php $roleColor = $role->color ?? '#696cff'; @endphp
+                  <span class="badge rounded-pill d-inline-flex align-items-center gap-1 fw-semibold"
+                        style="background:{{ $roleColor }}1a;color:{{ $roleColor }};border:1px solid {{ $roleColor }}40;font-size:.8rem;padding:.35em .75em">
+                    @if($role->icon)
+                      <i class="bx {{ $role->icon }}" style="font-size:.95rem"></i>
+                    @endif
+                    {{ $role->name }}
+                  </span>
+                </td>
 				<td>
 				  @if($role->is_default)
 					<span class="badge bg-success">Base</span>

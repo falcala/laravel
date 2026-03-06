@@ -1,6 +1,112 @@
 {
+  "__commonjsHelpers-CqkleIqs.js": {
+    "file": "assets/_commonjsHelpers-CqkleIqs.js",
+    "name": "_commonjsHelpers"
+  },
+  "resources/assets/css/demo.css": {
+    "file": "assets/demo--dN7KDn2.css",
+    "src": "resources/assets/css/demo.css",
+    "isEntry": true
+  },
+  "resources/assets/js/config.js": {
+    "file": "assets/config-DvyemKWy.js",
+    "name": "config",
+    "src": "resources/assets/js/config.js",
+    "isEntry": true
+  },
+  "resources/assets/js/dashboards-analytics.js": {
+    "file": "assets/dashboards-analytics-2GdtvCmv.js",
+    "name": "dashboards-analytics",
+    "src": "resources/assets/js/dashboards-analytics.js",
+    "isEntry": true
+  },
+  "resources/assets/js/main.js": {
+    "file": "assets/main-TEy-IOuY.js",
+    "name": "main",
+    "src": "resources/assets/js/main.js",
+    "isEntry": true
+  },
+  "resources/assets/vendor/fonts/iconify/iconify.css": {
+    "file": "assets/iconify-DDZnTNbY.css",
+    "src": "resources/assets/vendor/fonts/iconify/iconify.css",
+    "isEntry": true
+  },
+  "resources/assets/vendor/js/bootstrap.js": {
+    "file": "assets/bootstrap-DcxM1URQ.js",
+    "name": "bootstrap",
+    "src": "resources/assets/vendor/js/bootstrap.js",
+    "isEntry": true
+  },
+  "resources/assets/vendor/js/helpers.js": {
+    "file": "assets/helpers-CB19AG1d.js",
+    "name": "helpers",
+    "src": "resources/assets/vendor/js/helpers.js",
+    "isEntry": true
+  },
+  "resources/assets/vendor/js/menu.js": {
+    "file": "assets/menu-Bldkajpn.js",
+    "name": "menu",
+    "src": "resources/assets/vendor/js/menu.js",
+    "isEntry": true
+  },
+  "resources/assets/vendor/libs/apex-charts/apex-charts.scss": {
+    "file": "assets/apex-charts-BSEhqGnV.css",
+    "src": "resources/assets/vendor/libs/apex-charts/apex-charts.scss",
+    "isEntry": true
+  },
+  "resources/assets/vendor/libs/apex-charts/apexcharts.js": {
+    "file": "assets/apexcharts-DrruP4Np.js",
+    "name": "apexcharts",
+    "src": "resources/assets/vendor/libs/apex-charts/apexcharts.js",
+    "isEntry": true,
+    "imports": [
+      "__commonjsHelpers-CqkleIqs.js"
+    ]
+  },
+  "resources/assets/vendor/libs/jquery/jquery.js": {
+    "file": "assets/jquery-Bh41zue2.js",
+    "name": "jquery",
+    "src": "resources/assets/vendor/libs/jquery/jquery.js",
+    "isEntry": true,
+    "imports": [
+      "__commonjsHelpers-CqkleIqs.js"
+    ]
+  },
+  "resources/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js": {
+    "file": "assets/perfect-scrollbar-CnUAjnzb.js",
+    "name": "perfect-scrollbar",
+    "src": "resources/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js",
+    "isEntry": true,
+    "imports": [
+      "__commonjsHelpers-CqkleIqs.js"
+    ]
+  },
+  "resources/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.scss": {
+    "file": "assets/perfect-scrollbar-CfyPsj0y.css",
+    "src": "resources/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.scss",
+    "isEntry": true
+  },
+  "resources/assets/vendor/libs/popper/popper.js": {
+    "file": "assets/popper-Ck0tsB3H.js",
+    "name": "popper",
+    "src": "resources/assets/vendor/libs/popper/popper.js",
+    "isEntry": true,
+    "imports": [
+      "__commonjsHelpers-CqkleIqs.js"
+    ]
+  },
+  "resources/assets/vendor/scss/core.scss": {
+    "file": "assets/core-DPkZ6__9.css",
+    "src": "resources/assets/vendor/scss/core.scss",
+    "isEntry": true
+  },
+  "resources/assets/vendor/scss/pages/page-auth.scss": {
+    "file": "assets/page-auth-Cz9xnkSz.css",
+    "src": "resources/assets/vendor/scss/pages/page-auth.scss",
+    "isEntry": true
+  },
   "resources/css/app.css": {
-    "file": "assets/app-rDuyADs8.css",
+    "file": "assets/app-CeomGM3w.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },

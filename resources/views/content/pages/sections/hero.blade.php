@@ -172,10 +172,10 @@
 				   placeholder="https://... or upload below">
 		  </div>
 
-		  {{-- Upload button --}}
-		  <div class="d-flex align-items-center gap-2">
+		  {{-- Upload / Browse buttons --}}
+		  <div class="d-flex align-items-center gap-2 flex-wrap">
 			<label class="btn btn-outline-secondary btn-sm mb-0" style="cursor:pointer">
-			  <i class="bx bx-upload me-1"></i> Upload Image
+			  <i class="bx bx-upload me-1"></i> Upload
 			  <input type="file"
 					 accept="image/jpeg,image/png,image/webp,image/gif"
 					 class="slide-image-upload d-none"
@@ -185,6 +185,13 @@
 					 data-preview="preview_{{ $section->id }}_{{ $i }}"
 					 data-preview-wrap="preview_wrap_{{ $section->id }}_{{ $i }}">
 			</label>
+			<button type="button"
+					class="btn btn-outline-primary btn-sm media-browse-btn"
+					data-field="bg_image_url_{{ $section->id }}_{{ $i }}"
+					data-preview="preview_{{ $section->id }}_{{ $i }}"
+					data-preview-wrap="preview_wrap_{{ $section->id }}_{{ $i }}">
+			  <i class="bx bx-images me-1"></i> Browse
+			</button>
 			<span class="upload-status-{{ $section->id }}-{{ $i }} text-muted small"></span>
 		  </div>
 

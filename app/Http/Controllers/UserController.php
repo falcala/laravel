@@ -6,14 +6,30 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
-        $users = User::with('roles')->paginate(10);
-        return view('content.users.index', compact('users'));
+        $roles = Role::orderBy('name')->get();
+
+        $query = User::with('roles');
+
+        if ($request->filled('role')) {
+            $query->whereHas('roles', fn($q) => $q->where('name', $request->role));
+        }
+
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where(fn($q) => $q->where('name', 'like', "%$s%")
+                                      ->orWhere('email', 'like', "%$s%")
+                                      ->orWhere('nickname', 'like', "%$s%"));
+        }
+
+        $users = $query->latest()->paginate(10)->withQueryString();
+
+        return view('content.users.index', compact('users', 'roles'));
     }
 
     public function create()
@@ -26,6 +42,7 @@ class UserController extends Controller
     {
         $request->validate([
             'name'            => 'required|string|max:255',
+            'nickname'        => 'nullable|string|max:60|unique:users,nickname|regex:/^[a-zA-Z0-9_\-]+$/',
             'email'           => 'required|email|unique:users,email',
             'password'        => 'required|min:6|confirmed',
             'phone'           => 'nullable|string|max:20',
@@ -33,9 +50,10 @@ class UserController extends Controller
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'roles'           => 'nullable|array',
         ]);
-		
-		$data = [
+
+        $data = [
             'name'     => $request->name,
+            'nickname' => $request->nickname ?: null,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
             'phone'    => $request->phone,
@@ -56,6 +74,12 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
+    public function show(User $user)
+    {
+        $user->load('roles');
+        return view('content.users.show', compact('user'));
+    }
+
     public function edit(User $user)
     {
         $roles    = Role::all();
@@ -67,8 +91,8 @@ class UserController extends Controller
     {
         $request->validate([
             'name'            => 'required|string|max:255',
+            'nickname'        => 'nullable|string|max:60|unique:users,nickname,' . $user->id . '|regex:/^[a-zA-Z0-9_\-]+$/',
             'email'           => 'required|email|unique:users,email,' . $user->id,
-            'password'        => 'nullable|min:6|confirmed',
             'phone'           => 'nullable|string|max:20',
             'birthday'        => 'nullable|date|before:today',
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -77,11 +101,11 @@ class UserController extends Controller
 
         $data = [
             'name'     => $request->name,
+            'nickname' => $request->nickname ?: null,
             'email'    => $request->email,
             'phone'    => $request->phone,
             'birthday' => $request->birthday,
         ];
-
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
@@ -96,12 +120,10 @@ class UserController extends Controller
         }
 
         $user->update($data);
-		
-		if (auth()->user()->hasRole('admin')) {
+
+        if (auth()->user()->can('roles.edit')) {
             $user->syncRoles($request->roles ?? []);
         }
-		
-        $user->syncRoles($request->roles ?? []);
 
         return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }

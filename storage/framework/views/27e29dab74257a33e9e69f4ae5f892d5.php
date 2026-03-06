@@ -32,68 +32,87 @@ use Illuminate\Support\Facades\Route;
     </div>
     <!-- /Search -->
     <ul class="navbar-nav flex-row align-items-center ms-auto">
-        <!-- Place this tag where you want the button to render. -->
-        <li class="nav-item lh-1 me-4">
-            <a class="github-button" href="<?php echo e(config('variables.repository')); ?>" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star themeselection/sneat-html-laravel-admin-template-free on GitHub">Star</a>
-        </li>
-
         <!-- User -->
+        <?php if(auth()->guard()->check()): ?>
+        <?php
+          $me        = auth()->user();
+          $firstRole = $me->roles->first();
+          $roleColor = $firstRole?->color ?? '#696cff';
+          $roleLabel = $firstRole?->name ?? 'Sin rol';
+        ?>
         <li class="nav-item navbar-dropdown dropdown-user dropdown">
             <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
                 <div class="avatar avatar-online">
-                    <img src="<?php echo e(asset('assets/img/avatars/1.png')); ?>" alt class="w-px-40 h-auto rounded-circle">
+                    <img src="<?php echo e($me->profile_picture_url); ?>" alt="<?php echo e($me->name); ?>" class="w-px-40 h-auto rounded-circle" style="object-fit:cover">
                 </div>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
+                
                 <li>
-                    <a class="dropdown-item" href="javascript:void(0);">
-                        <div class="d-flex">
-                            <div class="flex-shrink-0 me-3">
+                    <a class="dropdown-item" href="<?php echo e(route('users.show', $me)); ?>">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="flex-shrink-0">
                                 <div class="avatar avatar-online">
-                                    <img src="<?php echo e(asset('assets/img/avatars/1.png')); ?>" alt class="w-px-40 h-auto rounded-circle">
+                                    <img src="<?php echo e($me->profile_picture_url); ?>" alt="<?php echo e($me->name); ?>" class="w-px-40 h-auto rounded-circle" style="object-fit:cover">
                                 </div>
                             </div>
                             <div class="flex-grow-1">
-                                <h6 class="mb-0">John Doe</h6>
-                                <small class="text-muted">Admin</small>
+                                <h6 class="mb-0 lh-1"><?php echo e($me->name); ?></h6>
+                                <?php if($me->nickname): ?>
+                                  <small class="text-primary"><?php echo e('@' . $me->nickname); ?></small>
+                                <?php else: ?>
+                                  <small class="text-muted">
+                                    <span class="badge rounded-pill fw-semibold"
+                                          style="background:<?php echo e($roleColor); ?>1a;color:<?php echo e($roleColor); ?>;border:1px solid <?php echo e($roleColor); ?>40;font-size:.7rem">
+                                      <?php if($firstRole?->icon): ?><i class="bx <?php echo e($firstRole->icon); ?> me-1"></i><?php endif; ?><?php echo e($roleLabel); ?>
+
+                                    </span>
+                                  </small>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </a>
                 </li>
+                <li><div class="dropdown-divider my-1"></div></li>
+
+                
                 <li>
-                    <div class="dropdown-divider my-1"></div>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="javascript:void(0);">
-                        <i class="icon-base bx bx-user icon-md me-3"></i><span>My Profile</span>
+                    <a class="dropdown-item" href="<?php echo e(route('users.show', $me)); ?>">
+                        <i class="icon-base bx bx-user icon-md me-3"></i><span>Mi perfil</span>
                     </a>
                 </li>
+
+                
                 <li>
-                    <a class="dropdown-item" href="javascript:void(0);">
-                        <i class="icon-base bx bx-cog icon-md me-3"></i><span>Settings</span>
+                    <a class="dropdown-item" href="<?php echo e(route('users.edit', $me)); ?>">
+                        <i class="icon-base bx bx-edit icon-md me-3"></i><span>Editar cuenta</span>
                     </a>
                 </li>
+
+                
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('frontpages.edit')): ?>
                 <li>
-                    <a class="dropdown-item" href="javascript:void(0);">
-                        <span class="d-flex align-items-center align-middle">
-                            <i class="flex-shrink-0 icon-base bx bx-credit-card icon-md me-3"></i><span class="flex-grow-1 align-middle">Billing Plan</span>
-                            <span class="flex-shrink-0 badge rounded-pill bg-danger">4</span>
-                        </span>
+                    <a class="dropdown-item" href="<?php echo e(route('frontpages.edit', $me)); ?>">
+                        <i class="icon-base bx bx-globe icon-md me-3"></i><span>Mi Front Page</span>
                     </a>
                 </li>
+                <?php endif; ?>
+
+                <li><div class="dropdown-divider my-1"></div></li>
+
+                
                 <li>
-                    <div class="dropdown-divider my-1"></div>
-                </li>
-                <li>
-				<form action="<?php echo e(route('logout')); ?>" method="POST" id="logout-form">
-					<?php echo csrf_field(); ?>
-					<a class="dropdown-item" href="#" onclick="document.getElementById('logout-form').submit()">
-						<i class="icon-base bx bx-power-off icon-md me-3"></i><span>Cerrar sesion</span>
-					</a>
-				</form>
+                    <form action="<?php echo e(route('logout')); ?>" method="POST" id="logout-form">
+                        <?php echo csrf_field(); ?>
+                        <a class="dropdown-item text-danger" href="#"
+                           onclick="document.getElementById('logout-form').submit()">
+                            <i class="icon-base bx bx-power-off icon-md me-3"></i><span>Cerrar sesión</span>
+                        </a>
+                    </form>
                 </li>
             </ul>
         </li>
+        <?php endif; ?>
         <!--/ User -->
     </ul>
 </div><?php /**PATH C:\xampp\htdocs\sneat\resources\views/layouts/sections/navbar/navbar-partial.blade.php ENDPATH**/ ?>

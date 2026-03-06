@@ -22,7 +22,8 @@ class RoleController extends Controller
         //abort_unless(auth()->user()->can('roles.create'), 403);
         $modules = \Database\Seeders\PermissionSeeder::$modules;
         $actions = \Database\Seeders\PermissionSeeder::$actions;
-        return view('content.roles.create', compact('modules', 'actions'));
+        $extra   = \Database\Seeders\PermissionSeeder::$extra;
+        return view('content.roles.create', compact('modules', 'actions', 'extra'));
     }
 
     public function store(Request $request)
@@ -32,9 +33,16 @@ class RoleController extends Controller
         $request->validate([
             'name'        => 'required|string|unique:roles,name|max:100',
             'permissions' => 'nullable|array',
+            'icon'        => 'nullable|string|max:80',
+            'color'       => 'nullable|string|max:20',
         ]);
 
-        $role = Role::create(['name' => $request->name, 'guard_name' => 'web']);
+        $role = Role::create([
+            'name'       => $request->name,
+            'guard_name' => 'web',
+            'icon'       => $request->input('icon'),
+            'color'      => $request->input('color', '#696cff'),
+        ]);
         $role->syncPermissions($request->permissions ?? []);
 
         if ($request->boolean('is_default')) {
@@ -49,8 +57,9 @@ class RoleController extends Controller
         //abort_unless(auth()->user()->can('roles.edit'), 403);
         $modules         = \Database\Seeders\PermissionSeeder::$modules;
         $actions         = \Database\Seeders\PermissionSeeder::$actions;
+        $extra           = \Database\Seeders\PermissionSeeder::$extra;
         $rolePermissions = $role->permissions->pluck('name')->toArray();
-        return view('content.roles.edit', compact('role', 'modules', 'actions', 'rolePermissions'));
+        return view('content.roles.edit', compact('role', 'modules', 'actions', 'extra', 'rolePermissions'));
     }
 
     public function update(Request $request, Role $role)
@@ -60,9 +69,15 @@ class RoleController extends Controller
         $request->validate([
             'name'        => 'required|string|max:100|unique:roles,name,' . $role->id,
             'permissions' => 'nullable|array',
+            'icon'        => 'nullable|string|max:80',
+            'color'       => 'nullable|string|max:20',
         ]);
 
-        $role->update(['name' => $request->name]);
+        $role->update([
+            'name'  => $request->name,
+            'icon'  => $request->input('icon'),
+            'color' => $request->input('color', '#696cff'),
+        ]);
         $role->syncPermissions($request->permissions ?? []);
 
         if ($request->boolean('is_default')) {

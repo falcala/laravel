@@ -39,11 +39,33 @@ use Illuminate\Support\Facades\Route;
 		  </a>
 		</li>
 		<?php endif; ?>
+		<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('frontpages.edit')): ?>
+		<li class="menu-item <?php echo e(request()->routeIs('frontpages.*') ? 'active open' : ''); ?>">
+		  <a href="<?php echo e(route('frontpages.edit', auth()->id())); ?>" class="menu-link">
+			<i class="menu-icon tf-icons bx bx-globe"></i>
+			<div>Mi Front Page</div>
+		  </a>
+		</li>
+		<?php endif; ?>
+		<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('frontpages.manage')): ?>
+		<li class="menu-item <?php echo e(request()->routeIs('frontpages.index') ? 'active open' : ''); ?>">
+		  <a href="<?php echo e(route('frontpages.index')); ?>" class="menu-link">
+			<i class="menu-icon tf-icons bx bx-layout"></i>
+			<div>Front Pages</div>
+		  </a>
+		</li>
+		<?php endif; ?>
 		<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('pages.edit')): ?>
 		<li class="menu-item <?php echo e(request()->routeIs('pages.*') ? 'active open' : ''); ?>">
 		  <a href="<?php echo e(route('pages.edit')); ?>" class="menu-link">
 			<i class="menu-icon tf-icons bx bx-file"></i>
 			<div>Pagina de inicio</div>
+		  </a>
+		</li>
+		<li class="menu-item <?php echo e(request()->routeIs('media.*') ? 'active open' : ''); ?>">
+		  <a href="<?php echo e(route('media.manager')); ?>" class="menu-link">
+			<i class="menu-icon tf-icons bx bx-images"></i>
+			<div>Media Manager</div>
 		  </a>
 		</li>
 		<?php endif; ?>

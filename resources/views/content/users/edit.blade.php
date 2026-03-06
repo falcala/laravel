@@ -31,10 +31,20 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Name</label>
+            <label class="form-label">Nombre</label>
             <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
                    value="{{ old('name', $user->name) }}" />
             @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Nickname <small class="text-muted">(único, solo letras, números, - y _)</small></label>
+            <div class="input-group">
+              <span class="input-group-text text-muted">@</span>
+              <input type="text" name="nickname" class="form-control @error('nickname') is-invalid @enderror"
+                     value="{{ old('nickname', $user->nickname) }}" placeholder="mi-nickname" />
+            </div>
+            @error('nickname') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
           </div>
 
           <div class="mb-3">
@@ -71,34 +81,53 @@
             <input type="password" name="password_confirmation" class="form-control" />
           </div>
 
-          @if(auth()->user()->hasRole('admin'))
-		  <div class="mb-3">
-            <label class="form-label">Assign Roles</label>
-            <div class="row">
+          @can('roles.edit')
+          {{-- Editable role picker --}}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Roles</label>
+            <div class="d-flex flex-wrap gap-2" id="role-cards">
               @foreach($roles as $role)
-              <div class="col-md-4">
-                <div class="form-check mb-2">
-                  <input class="form-check-input" type="checkbox" name="roles[]"
-                         value="{{ $role->name }}" id="role_{{ $role->id }}"
-                         {{ in_array($role->name, old('roles', $userRoles)) ? 'checked' : '' }}>
-                  <label class="form-check-label" for="role_{{ $role->id }}">{{ $role->name }}</label>
-                </div>
-              </div>
+              @php
+                $rc       = $role->color ?? '#696cff';
+                $checked  = in_array($role->name, old('roles', $userRoles));
+                $bgStyle  = $checked ? 'background:' . $rc . '22;border-color:' . $rc . ';' : 'background:#fff;border-color:' . $rc . '40;';
+              @endphp
+              <label for="role_{{ $role->id }}"
+                     class="role-card d-flex align-items-center gap-2 px-3 py-2 rounded border"
+                     data-color="{{ $rc }}"
+                     style="{{ $bgStyle }} cursor:pointer;user-select:none;transition:background .15s,border-color .15s">
+                <input class="form-check-input m-0 flex-shrink-0" type="checkbox"
+                       name="roles[]" value="{{ $role->name }}" id="role_{{ $role->id }}"
+                       {{ $checked ? 'checked' : '' }}>
+                @if($role->icon)
+                  <i class="bx {{ $role->icon }}" style="color:{{ $rc }};font-size:1rem"></i>
+                @endif
+                <span class="fw-semibold small" style="color:{{ $rc }}">{{ $role->name }}</span>
+              </label>
               @endforeach
             </div>
+            @if($roles->isEmpty())
+              <small class="text-muted">No hay roles creados todavía.</small>
+            @endif
           </div>
-		  @else
+          @else
+          {{-- Read-only badge display --}}
           <div class="mb-3">
-            <label class="form-label">Roles</label>
-            <div>
-              @forelse($userRoles as $roleName)
-                <span class="badge bg-label-info me-1">{{ $roleName }}</span>
+            <label class="form-label fw-semibold">Roles</label>
+            <div class="d-flex flex-wrap gap-2">
+              @forelse($user->roles as $role)
+                @php $rc = $role->color ?? '#696cff'; @endphp
+                <span class="badge rounded-pill d-inline-flex align-items-center gap-1 fw-semibold"
+                      style="background:{{ $rc }}1a;color:{{ $rc }};border:1px solid {{ $rc }}40;font-size:.8rem;padding:.35em .75em">
+                  @if($role->icon)<i class="bx {{ $role->icon }}" style="font-size:.9rem"></i>@endif
+                  {{ $role->name }}
+                </span>
               @empty
-                <span class="text-muted">Sin permisos asignados.</span>
+                <span class="text-muted small">Sin roles asignados.</span>
               @endforelse
             </div>
           </div>
-          @endif
+          @endcan
 
           <button type="submit" class="btn btn-primary">Update User</button>
           <a href="{{ route('users.index') }}" class="btn btn-secondary ms-1">Cancel</a>
@@ -108,15 +137,33 @@
   </div>
 </div>
 
-@push('page-script')
+@section('page-script')
 <script>
 function previewImage(input) {
   if (input.files && input.files[0]) {
-    const reader = new FileReader();
-    reader.onload = e => document.getElementById('preview').src = e.target.result;
+    var reader = new FileReader();
+    reader.onload = function (e) { document.getElementById('preview').src = e.target.result; };
     reader.readAsDataURL(input.files[0]);
   }
 }
+
+// Role card toggle — highlight card when checkbox is checked
+document.querySelectorAll('.role-card').forEach(function (label) {
+  var cb    = label.querySelector('input[type="checkbox"]');
+  var color = label.dataset.color || '#696cff';
+  if (!cb) return;
+
+  function applyState() {
+    if (cb.checked) {
+      label.style.background   = color + '22';
+      label.style.borderColor  = color;
+    } else {
+      label.style.background   = '#fff';
+      label.style.borderColor  = color + '40';
+    }
+  }
+
+  cb.addEventListener('change', applyState);
+});
 </script>
-@endpush
 @endsection

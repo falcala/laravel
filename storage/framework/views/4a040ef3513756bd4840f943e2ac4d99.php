@@ -40,7 +40,17 @@
               <?php $__empty_1 = true; $__currentLoopData = $roles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $role): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
               <tr>
 				<td><?php echo e($role->id); ?></td>
-                <td><span class="badge bg-label-primary"><?php echo e($role->name); ?></span></td>
+                <td>
+                  <?php $roleColor = $role->color ?? '#696cff'; ?>
+                  <span class="badge rounded-pill d-inline-flex align-items-center gap-1 fw-semibold"
+                        style="background:<?php echo e($roleColor); ?>1a;color:<?php echo e($roleColor); ?>;border:1px solid <?php echo e($roleColor); ?>40;font-size:.8rem;padding:.35em .75em">
+                    <?php if($role->icon): ?>
+                      <i class="bx <?php echo e($role->icon); ?>" style="font-size:.95rem"></i>
+                    <?php endif; ?>
+                    <?php echo e($role->name); ?>
+
+                  </span>
+                </td>
 				<td>
 				  <?php if($role->is_default): ?>
 					<span class="badge bg-success">Base</span>

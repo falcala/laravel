@@ -60,33 +60,75 @@
 <body>
 
   
-	<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-	  <div class="container">
-		<a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="<?php echo e(route('welcome')); ?>">
-		  <?php if($page->logo_url): ?>
-			<img src="<?php echo e($page->logo_url); ?>" alt="<?php echo e($page->title); ?>"
-				 style="max-height:36px; object-fit:contain">
-		  <?php else: ?>
-			<?php echo e($page->title); ?>
+  <?php
+    $navPos   = $page->nav_position ?? 'normal';
+    $navClass = match($navPos) { 'sticky' => 'sticky-top', 'fixed' => 'fixed-top', default => '' };
+    $navItems = $page->nav_enabled ? ($page->nav_items ?? []) : [];
+  ?>
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm <?php echo e($navClass); ?>" id="main-navbar">
+    <div class="container">
 
-		  <?php endif; ?>
-		</a>
-		<div class="ms-auto d-flex gap-2">
-		  <?php if(auth()->guard()->check()): ?>
-			<a href="<?php echo e(route('dashboard')); ?>" class="btn btn-outline-primary btn-sm">Dashboard</a>
-		  <?php else: ?>
-			<a href="<?php echo e(route('login')); ?>"    class="btn btn-outline-primary btn-sm">Login</a>
-			<a href="<?php echo e(route('register')); ?>" class="btn btn-primary btn-sm">Register</a>
-		  <?php endif; ?>
-		</div>
-	  </div>
-	</nav>
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="<?php echo e(route('welcome')); ?>">
+        <?php if($page->logo_url): ?>
+          <img src="<?php echo e($page->logo_url); ?>" alt="<?php echo e($page->title); ?>" style="max-height:36px;object-fit:contain">
+        <?php else: ?>
+          <?php echo e($page->title); ?>
+
+        <?php endif; ?>
+      </a>
+
+      <?php if(count($navItems)): ?>
+      <button class="navbar-toggler border-0 ms-auto me-2" type="button"
+              data-bs-toggle="collapse" data-bs-target="#main-nav-collapse">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="main-nav-collapse">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+          <?php $__currentLoopData = $navItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <?php if(!empty($item['children'])): ?>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="<?php echo e($item['url'] ?: '#'); ?>"
+                 role="button" data-bs-toggle="dropdown"><?php echo e($item['label']); ?></a>
+              <ul class="dropdown-menu">
+                <?php $__currentLoopData = $item['children']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $child): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                  <li><a class="dropdown-item" href="<?php echo e($child['url'] ?: '#'); ?>"><?php echo e($child['label']); ?></a></li>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+              </ul>
+            </li>
+            <?php else: ?>
+            <li class="nav-item">
+              <a class="nav-link" href="<?php echo e($item['url'] ?: '#'); ?>"><?php echo e($item['label']); ?></a>
+            </li>
+            <?php endif; ?>
+          <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        </ul>
+      </div>
+      <?php endif; ?>
+
+      <div class="<?php echo e(count($navItems) ? '' : 'ms-auto'); ?> d-flex gap-2">
+        <?php if(auth()->guard()->check()): ?>
+          <a href="<?php echo e(route('dashboard')); ?>" class="btn">
+            <img src="<?php echo e(url('img/icon_login.png')); ?>" width="35px" alt="Panel de Control" title="Panel de Control">
+          </a>
+        <?php else: ?>
+          <a href="<?php echo e(route('login')); ?>" class="btn btn-sm">
+            <img src="<?php echo e(url('img/icon_login.png')); ?>" width="35px" alt="Ingresar" title="Ingresar">
+          </a>
+          <a href="<?php echo e(route('register')); ?>" class="btn btn-primary btn-sm">
+            <img src="<?php echo e(url('img/icon_register.png')); ?>" width="35px" alt="Registrarse" title="Registrarse">
+          </a>
+        <?php endif; ?>
+      </div>
+
+    </div>
+  </nav>
+  <?php if($navPos === 'fixed'): ?><div style="height:56px"></div><?php endif; ?>
 
   
-	<?php $__currentLoopData = $sections; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $section): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-
-	  <?php if($section->type === 'hero'): ?>
-		  <?php if (isset($component)) { $__componentOriginal7d77bb759cf09fb7609ab7d50dcb0764 = $component; } ?>
+  <?php $__currentLoopData = $sections; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $section): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+    <div <?php if($section->anchor): ?> id="<?php echo e($section->anchor); ?>" <?php endif; ?> style="scroll-margin-top:64px">
+      <?php if($section->type === 'hero'): ?>
+        <?php if (isset($component)) { $__componentOriginal7d77bb759cf09fb7609ab7d50dcb0764 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal7d77bb759cf09fb7609ab7d50dcb0764 = $attributes; } ?>
 <?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.sections.hero','data' => ['section' => $section]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('sections.hero'); ?>
@@ -106,9 +148,8 @@
 <?php $component = $__componentOriginal7d77bb759cf09fb7609ab7d50dcb0764; ?>
 <?php unset($__componentOriginal7d77bb759cf09fb7609ab7d50dcb0764); ?>
 <?php endif; ?>
-
-	  <?php elseif($section->type === 'features'): ?>
-		  <?php if (isset($component)) { $__componentOriginal6ba66857502b2c621a48ed5da8100e7b = $component; } ?>
+      <?php elseif($section->type === 'features'): ?>
+        <?php if (isset($component)) { $__componentOriginal6ba66857502b2c621a48ed5da8100e7b = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal6ba66857502b2c621a48ed5da8100e7b = $attributes; } ?>
 <?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.sections.features','data' => ['section' => $section]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('sections.features'); ?>
@@ -128,9 +169,8 @@
 <?php $component = $__componentOriginal6ba66857502b2c621a48ed5da8100e7b; ?>
 <?php unset($__componentOriginal6ba66857502b2c621a48ed5da8100e7b); ?>
 <?php endif; ?>
-
-	  <?php elseif($section->type === 'pricing'): ?>
-		  <?php if (isset($component)) { $__componentOriginal67958b40bb9729ac877d83f1bb8ebdcf = $component; } ?>
+      <?php elseif($section->type === 'pricing'): ?>
+        <?php if (isset($component)) { $__componentOriginal67958b40bb9729ac877d83f1bb8ebdcf = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal67958b40bb9729ac877d83f1bb8ebdcf = $attributes; } ?>
 <?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.sections.pricing','data' => ['section' => $section]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('sections.pricing'); ?>
@@ -150,9 +190,8 @@
 <?php $component = $__componentOriginal67958b40bb9729ac877d83f1bb8ebdcf; ?>
 <?php unset($__componentOriginal67958b40bb9729ac877d83f1bb8ebdcf); ?>
 <?php endif; ?>
-
-	  <?php elseif($section->type === 'calendar'): ?>
-		  <?php if (isset($component)) { $__componentOriginal1c703606fa297b24cfb1959e42f19235 = $component; } ?>
+      <?php elseif($section->type === 'calendar'): ?>
+        <?php if (isset($component)) { $__componentOriginal1c703606fa297b24cfb1959e42f19235 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal1c703606fa297b24cfb1959e42f19235 = $attributes; } ?>
 <?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.sections.calendar','data' => ['section' => $section]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('sections.calendar'); ?>
@@ -172,9 +211,113 @@
 <?php $component = $__componentOriginal1c703606fa297b24cfb1959e42f19235; ?>
 <?php unset($__componentOriginal1c703606fa297b24cfb1959e42f19235); ?>
 <?php endif; ?>
-
-	  <?php elseif($section->type === 'custom'): ?>
-		  <?php if (isset($component)) { $__componentOriginal22c0545a2b13b20cda15f20b8aa61550 = $component; } ?>
+      <?php elseif($section->type === 'gallery'): ?>
+        <?php if (isset($component)) { $__componentOriginal5a7488291156c94457f2c8c43efe87d5 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal5a7488291156c94457f2c8c43efe87d5 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.sections.gallery','data' => ['section' => $section]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('sections.gallery'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['section' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($section)]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal5a7488291156c94457f2c8c43efe87d5)): ?>
+<?php $attributes = $__attributesOriginal5a7488291156c94457f2c8c43efe87d5; ?>
+<?php unset($__attributesOriginal5a7488291156c94457f2c8c43efe87d5); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal5a7488291156c94457f2c8c43efe87d5)): ?>
+<?php $component = $__componentOriginal5a7488291156c94457f2c8c43efe87d5; ?>
+<?php unset($__componentOriginal5a7488291156c94457f2c8c43efe87d5); ?>
+<?php endif; ?>
+      <?php elseif($section->type === 'testimonial'): ?>
+        <?php if (isset($component)) { $__componentOriginale6af3c0f5ac34290d8f7e67920413ac7 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginale6af3c0f5ac34290d8f7e67920413ac7 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.sections.testimonial','data' => ['section' => $section]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('sections.testimonial'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['section' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($section)]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginale6af3c0f5ac34290d8f7e67920413ac7)): ?>
+<?php $attributes = $__attributesOriginale6af3c0f5ac34290d8f7e67920413ac7; ?>
+<?php unset($__attributesOriginale6af3c0f5ac34290d8f7e67920413ac7); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginale6af3c0f5ac34290d8f7e67920413ac7)): ?>
+<?php $component = $__componentOriginale6af3c0f5ac34290d8f7e67920413ac7; ?>
+<?php unset($__componentOriginale6af3c0f5ac34290d8f7e67920413ac7); ?>
+<?php endif; ?>
+      <?php elseif($section->type === 'faq'): ?>
+        <?php if (isset($component)) { $__componentOriginal871f819925592cac5093a9ea5abc64c2 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal871f819925592cac5093a9ea5abc64c2 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.sections.faq','data' => ['section' => $section]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('sections.faq'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['section' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($section)]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal871f819925592cac5093a9ea5abc64c2)): ?>
+<?php $attributes = $__attributesOriginal871f819925592cac5093a9ea5abc64c2; ?>
+<?php unset($__attributesOriginal871f819925592cac5093a9ea5abc64c2); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal871f819925592cac5093a9ea5abc64c2)): ?>
+<?php $component = $__componentOriginal871f819925592cac5093a9ea5abc64c2; ?>
+<?php unset($__componentOriginal871f819925592cac5093a9ea5abc64c2); ?>
+<?php endif; ?>
+      <?php elseif($section->type === 'cta'): ?>
+        <?php if (isset($component)) { $__componentOriginal3059bb6f234c7f6929934634de0e93cd = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal3059bb6f234c7f6929934634de0e93cd = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.sections.cta','data' => ['section' => $section]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('sections.cta'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['section' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($section)]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal3059bb6f234c7f6929934634de0e93cd)): ?>
+<?php $attributes = $__attributesOriginal3059bb6f234c7f6929934634de0e93cd; ?>
+<?php unset($__attributesOriginal3059bb6f234c7f6929934634de0e93cd); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal3059bb6f234c7f6929934634de0e93cd)): ?>
+<?php $component = $__componentOriginal3059bb6f234c7f6929934634de0e93cd; ?>
+<?php unset($__componentOriginal3059bb6f234c7f6929934634de0e93cd); ?>
+<?php endif; ?>
+      <?php elseif($section->type === 'vcard'): ?>
+        <?php if (isset($component)) { $__componentOriginal96f8753bf80d9eb92055cc6ae8789401 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal96f8753bf80d9eb92055cc6ae8789401 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.sections.vcard','data' => ['section' => $section]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('sections.vcard'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['section' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($section)]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal96f8753bf80d9eb92055cc6ae8789401)): ?>
+<?php $attributes = $__attributesOriginal96f8753bf80d9eb92055cc6ae8789401; ?>
+<?php unset($__attributesOriginal96f8753bf80d9eb92055cc6ae8789401); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal96f8753bf80d9eb92055cc6ae8789401)): ?>
+<?php $component = $__componentOriginal96f8753bf80d9eb92055cc6ae8789401; ?>
+<?php unset($__componentOriginal96f8753bf80d9eb92055cc6ae8789401); ?>
+<?php endif; ?>
+      <?php elseif($section->type === 'custom'): ?>
+        <?php if (isset($component)) { $__componentOriginal22c0545a2b13b20cda15f20b8aa61550 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal22c0545a2b13b20cda15f20b8aa61550 = $attributes; } ?>
 <?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.sections.custom','data' => ['section' => $section]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('sections.custom'); ?>
@@ -194,15 +337,29 @@
 <?php $component = $__componentOriginal22c0545a2b13b20cda15f20b8aa61550; ?>
 <?php unset($__componentOriginal22c0545a2b13b20cda15f20b8aa61550); ?>
 <?php endif; ?>
-
-	  <?php endif; ?>
-
-	<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+      <?php endif; ?>
+    </div>
+  <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
   
   <footer class="bg-dark text-white text-center py-4 mt-5">
     <small>&copy; <?php echo e(date('Y')); ?> <?php echo e($page->title); ?>. All rights reserved.</small>
   </footer>
+
+  
+  <?php if($page->whatsapp): ?>
+  <a href="https://wa.me/<?php echo e($page->whatsapp); ?>"
+     target="_blank" rel="noopener"
+     title="Escríbenos por WhatsApp"
+     style="position:fixed;bottom:24px;right:24px;z-index:9999;
+            width:56px;height:56px;border-radius:50%;
+            display:flex;align-items:center;justify-content:center;
+            transition:transform .2s,box-shadow .2s;text-decoration:none"
+     onmouseenter="this.style.transform='scale(1.1)';this.style.boxShadow='0 6px 22px rgba(37,211,102,.6)'"
+     onmouseleave="this.style.transform='scale(1)';this.style.boxShadow='none'">
+    <img src="<?php echo e(url('img/walogo.png')); ?>" alt="Whatsapp">
+  </a>
+  <?php endif; ?>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

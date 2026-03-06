@@ -24,6 +24,8 @@
             @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
           </div>
 
+          @include('content.roles._icon_color_picker')
+
           <div class="mb-4">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" name="is_default"
@@ -51,4 +53,8 @@
     </div>
   </div>
 </div>
+@endsection
+
+@section('page-script')
+@include('content.roles._icon_color_script')
 @endsection

@@ -71,7 +71,38 @@
   </table>
 </div>
 
-<?php if (! $__env->hasRenderedOnce('f04594d4-78f8-4b4f-8945-74696dab35ab')): $__env->markAsRenderedOnce('f04594d4-78f8-4b4f-8945-74696dab35ab'); ?>
+<?php if(!empty($extra)): ?>
+<div class="mb-3">
+  <p class="small fw-semibold text-muted mb-2 mt-3">Permisos especiales</p>
+  <div class="d-flex flex-wrap gap-3">
+    <?php $__currentLoopData = $extra; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $perm => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+    <?php
+      $epChecked = in_array($perm, $rolePermissions ?? old('permissions', []));
+      [$eMod, $eAct] = explode('.', $perm, 2);
+    ?>
+    <label class="extra-perm-card d-flex align-items-start gap-2 px-3 py-2 rounded border"
+           data-perm="<?php echo e($perm); ?>"
+           style="<?php echo e($epChecked ? 'background:#696cff14;border-color:#696cff;' : 'background:#fff;border-color:#d9dee3;'); ?> cursor:pointer;user-select:none;transition:background .15s,border-color .15s;max-width:340px">
+      <input class="form-check-input mt-1 flex-shrink-0 perm-check"
+             type="checkbox"
+             name="permissions[]"
+             value="<?php echo e($perm); ?>"
+             id="perm_extra_<?php echo e(str_replace('.', '_', $perm)); ?>"
+             <?php echo e($epChecked ? 'checked' : ''); ?>>
+      <div>
+        <div class="fw-semibold small mb-1">
+          <span class="badge bg-label-secondary text-uppercase me-1" style="font-size:.65rem"><?php echo e($eMod); ?></span>
+          <span class="badge bg-label-primary" style="font-size:.65rem"><?php echo e($eAct); ?></span>
+        </div>
+        <div class="text-muted" style="font-size:.8rem"><?php echo e($label); ?></div>
+      </div>
+    </label>
+    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+  </div>
+</div>
+<?php endif; ?>
+
+<?php if (! $__env->hasRenderedOnce('56a26759-7b13-4095-8834-bdab0e0c3544')): $__env->markAsRenderedOnce('56a26759-7b13-4095-8834-bdab0e0c3544'); ?>
 <?php $__env->startPush('page-script'); ?>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -135,6 +166,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const all  = document.querySelectorAll('.perm-check');
     document.getElementById('toggle-all').checked = [...all].every(b => b.checked);
   }
+
+  // Extra permission card toggle style
+  document.querySelectorAll('.extra-perm-card').forEach(function (card) {
+    var cb = card.querySelector('input[type="checkbox"]');
+    if (!cb) return;
+    function applyStyle() {
+      if (cb.checked) {
+        card.style.background   = '#696cff14';
+        card.style.borderColor  = '#696cff';
+      } else {
+        card.style.background   = '#fff';
+        card.style.borderColor  = '#d9dee3';
+      }
+    }
+    cb.addEventListener('change', function () {
+      applyStyle();
+      syncMasterToggle();
+    });
+  });
 
   // Init on load
   syncRowToggles();

@@ -6,7 +6,7 @@ use Spatie\Permission\Models\Role as SpatieRole;
 
 class Role extends SpatieRole
 {
-    protected $fillable = ['name', 'guard_name', 'is_default'];
+    protected $fillable = ['name', 'guard_name', 'is_default', 'icon', 'color'];
 
     protected $casts = [
         'is_default' => 'boolean',

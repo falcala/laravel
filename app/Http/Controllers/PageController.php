@@ -44,6 +44,13 @@ class PageController extends Controller
 		$dir = public_path('/img/site');
 		if (!file_exists($dir)) mkdir($dir, 0755, true);
 
+		// Nav items: sent as JSON string from the editor
+		$navItems = null;
+		if ($request->filled('nav_items_json')) {
+			$decoded = json_decode($request->input('nav_items_json'), true);
+			if (is_array($decoded)) $navItems = $decoded;
+		}
+
 		$data = [
 			'title'            => $request->title,
 			'meta_description' => $request->meta_description,
@@ -59,33 +66,43 @@ class PageController extends Controller
 			'schema_markup'    => $request->schema_markup
 									? json_decode($request->schema_markup, true)
 									: null,
+			'nav_enabled'      => $request->boolean('nav_enabled'),
+			'nav_position'     => $request->input('nav_position', 'normal'),
+			'nav_items'        => $navItems,
+			'whatsapp'         => preg_replace('/[^0-9]/', '', $request->whatsapp ?? '') ?: null,
 		];
 
-		// Logo
+		// Logo — file upload takes priority; fallback to media manager URL
 		if ($request->hasFile('logo')) {
-			if ($page->logo) @unlink(public_path('/img/site/' . $page->logo));
+			if ($page->logo && !str_starts_with($page->logo, 'http')) @unlink(public_path('/img/site/' . $page->logo));
 			$file = $request->file('logo');
 			$name = 'logo_' . time() . '.' . $file->getClientOriginalExtension();
 			$file->move($dir, $name);
 			$data['logo'] = $name;
+		} elseif ($request->filled('logo_media')) {
+			$data['logo'] = $request->logo_media;
 		}
 
-		// Favicon
+		// Favicon — file upload takes priority; fallback to media manager URL
 		if ($request->hasFile('favicon')) {
-			if ($page->favicon) @unlink(public_path('/img/site/' . $page->favicon));
+			if ($page->favicon && !str_starts_with($page->favicon, 'http')) @unlink(public_path('/img/site/' . $page->favicon));
 			$file = $request->file('favicon');
 			$name = 'favicon_' . time() . '.' . $file->getClientOriginalExtension();
 			$file->move($dir, $name);
 			$data['favicon'] = $name;
+		} elseif ($request->filled('favicon_media')) {
+			$data['favicon'] = $request->favicon_media;
 		}
 
-		// OG Image
+		// OG Image — file upload takes priority; fallback to media manager URL
 		if ($request->hasFile('og_image')) {
-			if ($page->og_image) @unlink(public_path('/img/site/' . $page->og_image));
+			if ($page->og_image && !str_starts_with($page->og_image, 'http')) @unlink(public_path('/img/site/' . $page->og_image));
 			$file = $request->file('og_image');
 			$name = 'og_' . time() . '.' . $file->getClientOriginalExtension();
 			$file->move($dir, $name);
 			$data['og_image'] = $name;
+		} elseif ($request->filled('og_image_media')) {
+			$data['og_image'] = $request->og_image_media;
 		}
 
 		$page->update($data);
@@ -98,7 +115,7 @@ class PageController extends Controller
     {
         abort_unless(auth()->user()->can('pages.edit'), 403);
         $request->validate([
-            'type' => 'required|in:hero,features,pricing,calendar,gallery,testimonial,faq,cta,custom',
+            'type' => 'required|in:hero,features,pricing,calendar,gallery,testimonial,faq,cta,custom,vcard',
         ]);
 
         $page     = Page::where('slug', 'welcome')->firstOrFail();
@@ -171,6 +188,29 @@ class PageController extends Controller
             ],
             'custom' => [
                 'html' => '<p>Add your custom content here.</p>',
+            ],
+            'vcard' => [
+                'first_name'   => 'John',
+                'last_name'    => 'Doe',
+                'organization' => 'Mi Empresa S.A.',
+                'title'        => 'Director General',
+                'email'        => 'contacto@ejemplo.com',
+                'phone_mobile' => '+52 55 1234 5678',
+                'phone_work'   => '',
+                'website'      => 'https://ejemplo.com',
+                'address'      => '',
+                'city'         => '',
+                'state'        => '',
+                'zip'          => '',
+                'country'      => 'MX',
+                'linkedin'     => '',
+                'twitter'      => '',
+                'instagram'    => '',
+                'note'         => '',
+                'photo_url'    => '',
+                'bg_color'     => '#696cff',
+                'text_color'   => '#ffffff',
+                'btn_label'    => 'Guardar Contacto',
             ],
         ];
 
@@ -255,8 +295,15 @@ class PageController extends Controller
             }
         }
 
+        // Sanitize anchor: lowercase, only a-z 0-9 hyphens/underscores
+        $anchor = $request->input('anchor');
+        if ($anchor) {
+            $anchor = preg_replace('/[^a-z0-9_-]/i', '', strtolower(trim($anchor))) ?: null;
+        }
+
         $section->update([
             'title'      => $request->title,
+            'anchor'     => $anchor ?: null,
             'is_visible' => $request->boolean('is_visible'),
             'content'    => $content,
         ]);
@@ -278,7 +325,7 @@ class PageController extends Controller
 			pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)
 		) . '.' . $file->getClientOriginalExtension();
 
-		$destination = public_path('../resources/img/slider');
+		$destination = public_path('img/slider');
 
 		if (!file_exists($destination)) {
 			mkdir($destination, 0755, true);
@@ -286,7 +333,7 @@ class PageController extends Controller
 
 		$file->move($destination, $filename);
 
-		$url = asset('../resources/img/slider/' . $filename);
+		$url = asset('img/slider/' . $filename);
 
 		return response()->json(['success' => true, 'url' => $url]);
 	}
@@ -298,9 +345,12 @@ class PageController extends Controller
 		// Clean up uploaded slider images
 		if ($section->type === 'hero') {
 			foreach ($section->content['slides'] ?? [] as $slide) {
-				if (!empty($slide['bg_image']) && str_contains($slide['bg_image'], '../resources/img/slider/')) {
-					$path = public_path(parse_url($slide['bg_image'], PHP_URL_PATH));
-					if (file_exists($path)) {
+				if (!empty($slide['bg_image'])) {
+					$urlPath = parse_url($slide['bg_image'], PHP_URL_PATH);
+					// Normalize path relative to public/
+					$rel  = ltrim(str_replace(parse_url(asset('/'), PHP_URL_PATH), '', $urlPath), '/');
+					$path = public_path($rel);
+					if ($rel && file_exists($path)) {
 						unlink($path);
 					}
 				}
@@ -330,6 +380,58 @@ class PageController extends Controller
         abort_unless(auth()->user()->can('pages.edit'), 403);
         $section->update(['is_visible' => !$section->is_visible]);
         return back()->with('success', 'Section visibility updated.');
+    }
+
+    // Download vCard (.vcf)
+    public function downloadVcard(PageSection $section)
+    {
+        abort_if($section->type !== 'vcard', 404);
+
+        $c = $section->content ?? [];
+
+        $lines = ['BEGIN:VCARD', 'VERSION:3.0'];
+
+        $last  = $this->vcfEscape($c['last_name']  ?? '');
+        $first = $this->vcfEscape($c['first_name'] ?? '');
+        $lines[] = "N:{$last};{$first};;;";
+        $lines[] = 'FN:' . trim("{$first} {$last}");
+
+        if (!empty($c['organization'])) $lines[] = 'ORG:'   . $this->vcfEscape($c['organization']);
+        if (!empty($c['title']))        $lines[] = 'TITLE:' . $this->vcfEscape($c['title']);
+        if (!empty($c['email']))        $lines[] = 'EMAIL;TYPE=INTERNET:' . $c['email'];
+        if (!empty($c['phone_mobile'])) $lines[] = 'TEL;TYPE=CELL:'       . $c['phone_mobile'];
+        if (!empty($c['phone_work']))   $lines[] = 'TEL;TYPE=WORK:'       . $c['phone_work'];
+        if (!empty($c['website']))      $lines[] = 'URL:'  . $c['website'];
+
+        $street  = $this->vcfEscape($c['address'] ?? '');
+        $city    = $this->vcfEscape($c['city']    ?? '');
+        $state   = $this->vcfEscape($c['state']   ?? '');
+        $zip     = $this->vcfEscape($c['zip']     ?? '');
+        $country = $this->vcfEscape($c['country'] ?? '');
+        if ($street || $city || $state || $zip || $country) {
+            $lines[] = "ADR;TYPE=WORK:;;{$street};{$city};{$state};{$zip};{$country}";
+        }
+
+        if (!empty($c['linkedin']))  $lines[] = 'X-SOCIALPROFILE;TYPE=linkedin:'  . $c['linkedin'];
+        if (!empty($c['twitter']))   $lines[] = 'X-SOCIALPROFILE;TYPE=twitter:'   . $c['twitter'];
+        if (!empty($c['instagram'])) $lines[] = 'X-SOCIALPROFILE;TYPE=instagram:' . $c['instagram'];
+        if (!empty($c['note']))      $lines[] = 'NOTE:'  . $this->vcfEscape($c['note']);
+        if (!empty($c['photo_url'])) $lines[] = 'PHOTO;VALUE=URI:' . $c['photo_url'];
+
+        $lines[] = 'END:VCARD';
+
+        $vcf      = implode("\r\n", $lines) . "\r\n";
+        $filename = \Illuminate\Support\Str::slug(trim("{$first} {$last}") ?: 'contacto') . '.vcf';
+
+        return response($vcf, 200, [
+            'Content-Type'        => 'text/vcard; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+
+    private function vcfEscape(string $value): string
+    {
+        return str_replace([',', ';', "\n"], ['\\,', '\\;', '\\n'], $value);
     }
 
     // Public welcome page

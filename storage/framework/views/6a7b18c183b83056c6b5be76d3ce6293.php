@@ -173,9 +173,9 @@
 		  </div>
 
 		  
-		  <div class="d-flex align-items-center gap-2">
+		  <div class="d-flex align-items-center gap-2 flex-wrap">
 			<label class="btn btn-outline-secondary btn-sm mb-0" style="cursor:pointer">
-			  <i class="bx bx-upload me-1"></i> Upload Image
+			  <i class="bx bx-upload me-1"></i> Upload
 			  <input type="file"
 					 accept="image/jpeg,image/png,image/webp,image/gif"
 					 class="slide-image-upload d-none"
@@ -185,6 +185,13 @@
 					 data-preview="preview_<?php echo e($section->id); ?>_<?php echo e($i); ?>"
 					 data-preview-wrap="preview_wrap_<?php echo e($section->id); ?>_<?php echo e($i); ?>">
 			</label>
+			<button type="button"
+					class="btn btn-outline-primary btn-sm media-browse-btn"
+					data-field="bg_image_url_<?php echo e($section->id); ?>_<?php echo e($i); ?>"
+					data-preview="preview_<?php echo e($section->id); ?>_<?php echo e($i); ?>"
+					data-preview-wrap="preview_wrap_<?php echo e($section->id); ?>_<?php echo e($i); ?>">
+			  <i class="bx bx-images me-1"></i> Browse
+			</button>
 			<span class="upload-status-<?php echo e($section->id); ?>-<?php echo e($i); ?> text-muted small"></span>
 		  </div>
 

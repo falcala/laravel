@@ -8,7 +8,7 @@ use App\Models\Role;
 
 class PermissionSeeder extends Seeder
 {
-    // Add your modules here — extend this list as your app grows
+    // Modules with standard view/create/edit/delete grid
     public static array $modules = [
         'roles',
         'users',
@@ -18,6 +18,12 @@ class PermissionSeeder extends Seeder
     ];
 
     public static array $actions = ['view', 'create', 'edit', 'delete'];
+
+    // Custom permissions outside the standard grid: 'permission.name' => 'Label description'
+    public static array $extra = [
+        'frontpages.edit'   => 'Front Page — Editar propia',
+        'frontpages.manage' => 'Front Page — Gestionar todas (admin)',
+    ];
 
     public function run(): void
     {
@@ -30,6 +36,11 @@ class PermissionSeeder extends Seeder
                     'guard_name' => 'web',
                 ]);
             }
+        }
+
+        // Extra custom permissions
+        foreach (array_keys(self::$extra) as $perm) {
+            Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
         }
 
         // Admin always gets everything

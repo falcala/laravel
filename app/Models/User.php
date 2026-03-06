@@ -14,11 +14,13 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name',
+        'nickname',
         'email',
         'password',
         'phone',
         'birthday',
         'profile_picture',
+        'google_id',
     ];
 
     protected $hidden = ['password', 'remember_token' ];
@@ -27,6 +29,11 @@ class User extends Authenticatable
         'birthday' => 'date',
     ];
 	
+    public function frontPage(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(\App\Models\Page::class);
+    }
+
 	public function getProfilePictureUrlAttribute(): string
     {
         if ($this->profile_picture && file_exists(storage_path('app/public/' . $this->profile_picture))) {
